@@ -22,8 +22,6 @@
 #define BUS_SPEED_STANDARD_HZ         100000U
 /** I2C bus speed [Hz] in Fast Mode */
 #define BUS_SPEED_FAST_HZ             400000U
-/* Maximum value of Clock Divider (CKDIV) */
-#define CKDIV_MAX                          7
 
 /* Device constant configuration parameters */
 struct i2c_sam0_config {
@@ -59,7 +57,7 @@ struct i2c_sam0_dev_data {
 	((const struct i2c_sam0_dev_cfg *const)(dev)->config->config_info)
 #define DEV_DATA(dev) \
 	((struct i2c_sam0_dev_data *const)(dev)->driver_data)
-
+#if 0
 static int i2c_clk_set(Twi *const twi, u32_t speed)
 {
 	u32_t ck_div = 0;
@@ -91,10 +89,12 @@ static int i2c_clk_set(Twi *const twi, u32_t speed)
 
 	return 0;
 }
+#endif
 
 static int i2c_sam0_configure(struct device *dev, u32_t config)
 {
 	const struct i2c_sam0_dev_cfg *const dev_cfg = DEV_CFG(dev);
+#if 0
 	Twi *const twi = dev_cfg->regs;
 	u32_t bitrate;
 	int ret;
@@ -134,10 +134,12 @@ static int i2c_sam0_configure(struct device *dev, u32_t config)
 
 	/* Enable Master Mode */
 	twi->TWI_CR = TWI_CR_MSEN;
+#endif
 
 	return 0;
 }
 
+#if 0
 static void write_msg_start(Twi *const twi, struct twi_msg *msg, u8_t daddr)
 {
 	/* Set slave address and number of internal address bytes. */
@@ -165,12 +167,14 @@ static void read_msg_start(Twi *const twi, struct twi_msg *msg, u8_t daddr)
 	/* Enable Receive Ready and Transmission Completed interrupts */
 	twi->TWI_IER = TWI_IER_RXRDY | TWI_IER_TXCOMP | TWI_IER_NACK;
 }
+#endif
 
 static int i2c_sam0_transfer(struct device *dev, struct i2c_msg *msgs,
 				u8_t num_msgs, u16_t addr)
 {
 	const struct i2c_sam0_dev_cfg *const dev_cfg = DEV_CFG(dev);
 	struct i2c_sam0_dev_data *const dev_data = DEV_DATA(dev);
+#if 0
 	Twi *const twi = dev_cfg->regs;
 
 	__ASSERT_NO_MSG(msgs);
@@ -218,6 +222,7 @@ static int i2c_sam0_transfer(struct device *dev, struct i2c_msg *msgs,
 			return -EIO;
 		}
 	}
+#endif
 
 	return 0;
 }
@@ -227,6 +232,8 @@ static void i2c_sam0_isr(void *arg)
 	struct device *dev = (struct device *)arg;
 	const struct i2c_sam0__dev_cfg *const dev_cfg = DEV_CFG(dev);
 	struct i2c_sam0_dev_data *const dev_data = DEV_DATA(dev);
+
+#if 0
 	Twi *const twi = dev_cfg->regs;
 	struct twi_msg *msg = &dev_data->msg;
 	u32_t isr_status;
@@ -280,12 +287,14 @@ tx_comp:
 	twi->TWI_IDR = twi->TWI_IMR;
 	/* We are done */
 	k_sem_give(&dev_data->sem);
+#endif
 }
 
 static int i2c_sam0_initialize(struct device *dev)
 {
 	const struct i2c_sam0_dev_cfg *const dev_cfg = DEV_CFG(dev);
 	struct i2c_sam0_dev_data *const dev_data = DEV_DATA(dev);
+#if 0
 	Twi *const twi = dev_cfg->regs;
 	u32_t bitrate_cfg;
 	int ret;
@@ -304,7 +313,7 @@ static int i2c_sam0_initialize(struct device *dev)
 
 	/* Reset TWI module */
 	twi->TWI_CR = TWI_CR_SWRST;
-
+#endif
 	bitrate_cfg = _i2c_map_dt_bitrate(dev_cfg->bitrate);
 
 	ret = i2c_sam0_configure(dev, I2C_MODE_MASTER | bitrate_cfg);
